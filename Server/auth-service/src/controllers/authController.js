@@ -5,13 +5,13 @@ import User from "../models/user.js";
 
 const jwtSecret = process.env.JWT_SECRET
 
-export const signup= async(requestAnimationFrame,res)=>{
+export const signup= async(req,res)=>{
     try{
         const {name,email,password,role}=req.body;
         if (!name || !email || !password || !role)
         return res.status(400).json({ message: "All fields required" });
         
-        const existing = User.findOne(email);
+        const existing = await User.findOne({email});
         if(existing) return res.status(400).json({message:"User already exist"});
 
         const hashed = await bcrypt.hash(password,10);
@@ -19,7 +19,7 @@ export const signup= async(requestAnimationFrame,res)=>{
 
         const token = jwt.sign(
             { id: user._id, role: user.role },
-            jwtSecret,
+            process.env.JWT_SECRET,
             { expiresIn: "7d" }
         );
 
@@ -34,7 +34,7 @@ export const signup= async(requestAnimationFrame,res)=>{
 export const login= async(req,res)=>{
     try{
         const {email,password}= req.body;
-        const user = await User.findOne(email);
+        const user = await User.findOne({email});
         if(!user) return res.status(404).json({message:"No user found"});
 
         const match = await bcrypt.compare(password,user.password);
@@ -42,7 +42,7 @@ export const login= async(req,res)=>{
 
         const token = jwt.sign(
             {id:user._id,role:user.role},
-            jwtSecret,
+            process.env.JWT_SECRET,
             {expiresIn:"7d"}
         );
         res.json({token,user});
@@ -52,7 +52,7 @@ export const login= async(req,res)=>{
     }
 }
 
-export const getme = async(req,res)=>{
+export const getMe = async(req,res)=>{
      try {
     const user = await User.findById(req.user.id).select("-password");
     if (!user) return res.status(404).json({ message: "User not found" });
