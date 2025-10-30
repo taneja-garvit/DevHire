@@ -2,6 +2,9 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/user.js";
 
+
+const jwtSecret = process.env.JWT_SECRET
+
 export const signup= async(requestAnimationFrame,res)=>{
     try{
         const {name,email,password,role}=req.body;
@@ -16,7 +19,7 @@ export const signup= async(requestAnimationFrame,res)=>{
 
         const token = jwt.sign(
             { id: user._id, role: user.role },
-            process.env.JWT_SECRET,
+            jwtSecret,
             { expiresIn: "7d" }
         );
 
@@ -26,4 +29,25 @@ export const signup= async(requestAnimationFrame,res)=>{
      catch(err){
         res.status(500).json({ message: err.message });
      }
+}
+
+export const login= async(req,res)=>{
+    try{
+        const {email,password}= req.body;
+        const user = await User.findOne(email);
+        if(!user) return res.status(404).json({message:"No user found"});
+
+        const match = await bcrypt.compare(password,user.password);
+        if(!match) return res.status(401).json({message:"Wrong Credentials"});
+
+        const token = jwt.sign(
+            {id:user._id,role:user.role},
+            jwtSecret,
+            {expiresIn:"7d"}
+        );
+        res.json({token,user});
+    }
+    catch(err){
+        res.status(500).json({ message: err.message });
+    }
 }
