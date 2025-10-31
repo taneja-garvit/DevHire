@@ -1,8 +1,8 @@
-import Job from "./models/job.js"
+import Job from "../models/job.js"
 
 export const createJob = async(req,res)=>{
     try{
-        const job = new Job({...req.body,poster,postedBy:req.user.id});
+        const job = new Job({...req.body ,postedBy:req.user.id});
         await job.save();
         res.status(201).json({success:true,job});
     }
@@ -16,11 +16,11 @@ export const getAllJobs = async(req,res)=>{
         const filters={};
         const {skill,location,experienceLevel } = req.query;
 
-        if(skill) filters.skill = {$regex: skill, $options: "i"}
+        if(skill) filters.skills = {$regex: skill, $options: "i"}
         if(location) filters.location = {$regex: location, $options: "i"}
-        if(experienceLevel) filters.location = experienceLevel;
+        if(experienceLevel) filters.experienceLevel = experienceLevel;
 
-        const jobs = await jobs.find(filters).sort({ createdAt: -1 })
+        const jobs = await Job.find(filters).sort({ createdAt: -1 })
         res.status(200).json({success:true, count:jobs.length,jobs})
 
     } 
@@ -36,6 +36,6 @@ export const getJobById = async(req,res)=>{
         res.status(200).json({success:true,job})
     }
     catch(err){
-        return res.status(500).josn({message:"Server error",error: err.message})
+        return res.status(500).json({message:"Server error",error: err.message})
     }
 };

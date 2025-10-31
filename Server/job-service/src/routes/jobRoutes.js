@@ -1,5 +1,5 @@
-import { createJob, getAllJobs, getJobById } from "../controllers/jobController";
-import { verifyAdmin } from "../middlewares/verifyAdmin";
+import { createJob, getAllJobs, getJobById } from "../controllers/jobController.js";
+import { verifyAdmin } from "../middlewares/verifyAdmin.js";
 import express from "express";
 
 const router = express.Router();

@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import jobRoutes from "./routes/jobRoutes.js";
-import connectdb from "../auth-service/src/config/db";
+import connectdb from "./config/db.js";
 
 dotenv.config();
 connectdb();
