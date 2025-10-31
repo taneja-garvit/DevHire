@@ -7,4 +7,4 @@ const questionSchema = new mongoose.Schema({
   category: { type: String, required: true },
 })
 
-export default mongoose.model("Questions",questionSchema)
+export default mongoose.model("Question",questionSchema)

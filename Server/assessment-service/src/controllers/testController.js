@@ -6,7 +6,7 @@ export const createTestSession =async(req,res)=>{
     try{
         const { candidateId, jobId, skillCategory } = req.body;
         const allQuestions = await Question.find({category:skillCategory})
-        if(allQuestions.length<10) return res.status(400).json({ message: "Not enough questions" });
+        if(allQuestions.length<1) return res.status(400).json({ message: "Not enough questions" });
 
         const randomQuestions  = allQuestions.sort(() => 0.5 - Math.random()).slice(0, 10);
 
@@ -17,8 +17,8 @@ export const createTestSession =async(req,res)=>{
             
         }))
 
-        const testSession = new testSession({candidateId, jobId, questions:testQuestions})
-        await testQuestions.save()
+        const testSession = new TestSession({candidateId, jobId, questions:testQuestions})
+        await testSession.save()
 
         res.status(201).json({success:true, testId:testSession._id, questions:testQuestions})
     }
