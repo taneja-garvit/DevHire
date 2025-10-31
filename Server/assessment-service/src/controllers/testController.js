@@ -1,4 +1,4 @@
-import Question from "../models/Question";
+import Question from "../models/Question.js";
 import TestSession from "../models/TestSession.js";
 
 

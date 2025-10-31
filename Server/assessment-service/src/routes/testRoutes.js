@@ -1,5 +1,5 @@
 import express from "express"
-import { createTestSession, getTestById } from "../controllers/testController"
+import { createTestSession, getTestById } from "../controllers/testController.js"
 
 const router = express.Router()
 router.post("/",createTestSession);

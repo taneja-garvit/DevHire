@@ -1,5 +1,5 @@
 import express from "express"
-import { getAllQuestions } from "../controllers/questionController";
+import { getAllQuestions } from "../controllers/questionController.js";
 
 const router= express.Router();
 
