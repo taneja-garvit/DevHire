@@ -2,7 +2,7 @@ import Question from "../models/Question.js"
 
 export const getAllQuestions =async(req,res)=>{
     try{
-        const questions =  Question.find()
+        const questions = await Question.find()
         res.status(200).json({success:true, count:questions.length , questions})
     }
     catch(err){
