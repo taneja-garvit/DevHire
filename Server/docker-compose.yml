@@ -1,0 +1,19 @@
+services:
+  evaluator-service:
+    build: ./evaluator-service
+    ports:
+      - "50051:50051"   # gRPC
+      - "4003:4003"     # REST
+    depends_on: [mongo]
+
+  score-service:
+    build: ./score-service
+    ports:
+      - "50052:50052"
+      - "4004:4004"
+
+  notification-service:
+    build: ./notification-service
+    ports:
+      - "50053:50053"
+      - "4005:4005"
