@@ -1,19 +1,79 @@
+version: "3.8"
+
 services:
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    ports:
+      - "5001:5001"
+    environment:
+      - PORT=5001
+      - MONGO_URI=mongodb+srv://tanejaggarvit_db_user:garvit@cluster0.ytpiruw.mongodb.net/authdb?retryWrites=true&w=majority
+      - JWT_SECRET=supersecret
+
+  job-service:
+    build: ./job-service
+    container_name: job-service
+    ports:
+      - "5002:5002"
+    environment:
+      - PORT=5002
+      - MONGO_URI=mongodb+srv://tanejaggarvit_db_user:garvit@cluster0.ytpiruw.mongodb.net/jobdb?retryWrites=true&w=majority
+
+  assessment-service:
+    build: ./assessment-service
+    container_name: assessment-service
+    ports:
+      - "5003:5003"
+    environment:
+      - PORT=5003
+      - MONGO_URI=mongodb+srv://tanejaggarvit_db_user:garvit@cluster0.ytpiruw.mongodb.net/assessmentdb?retryWrites=true&w=majority
+
   evaluator-service:
     build: ./evaluator-service
+    container_name: evaluator-service
     ports:
-      - "50051:50051"   # gRPC
-      - "4003:4003"     # REST
-    depends_on: [mongo]
+      - "5004:5004"
+      - "50051:50051"
+    environment:
+      - PORT=5004
+      - MONGO_URI=mongodb+srv://tanejaggarvit_db_user:garvit@cluster0.ytpiruw.mongodb.net/evaluatordb?retryWrites=true&w=majority
 
   score-service:
     build: ./score-service
+    container_name: score-service
     ports:
+      - "5005:5005"
       - "50052:50052"
-      - "4004:4004"
+    environment:
+      - PORT=5005
+      - MONGO_URI=mongodb+srv://tanejaggarvit_db_user:garvit@cluster0.ytpiruw.mongodb.net/scoredb?retryWrites=true&w=majority
 
   notification-service:
     build: ./notification-service
+    container_name: notification-service
     ports:
-      - "50053:50053"
       - "4005:4005"
+      - "50053:50053"
+    environment:
+      - PORT=4005
+      - MONGO_URI=mongodb+srv://tanejaggarvit_db_user:garvit@cluster0.ytpiruw.mongodb.net/notificationdb?retryWrites=true&w=majority
+
+  gateway-service:
+    build: ./gateway-service
+    container_name: gateway-service
+    ports:
+      - "4000:4000"
+    depends_on:
+      - auth-service
+      - job-service
+      - assessment-service
+      - evaluator-service
+      - score-service
+      - notification-service
+    environment:
+      - PORT=4000
+      - JWT_SECRET=supersecret
+      - ASSESSMENT_URL=http://assessment-service:5003
+      - JOB_URL=http://job-service:5002
+      - EVALUATOR_GRPC_URL=evaluator-service:50051
