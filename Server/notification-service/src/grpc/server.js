@@ -7,7 +7,7 @@ import Notification from "../models/Notification.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const PROTO_PATH = path.join(__dirname, "../../proto/devhire.proto");
+const PROTO_PATH = path.join(__dirname, "../../../proto/devhire.proto");
 const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
   keepCase: true,
   longs: String,

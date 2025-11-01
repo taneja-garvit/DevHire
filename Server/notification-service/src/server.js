@@ -9,7 +9,7 @@ dotenv.config();
 connectDB();
 
 const app = express();
-startGrpcServer("0.0.0.0:50051");
+startGrpcServer("0.0.0.0:50053");
 
 app.use(express.json());
 app.use("/api/notifications", notificationRoutes);

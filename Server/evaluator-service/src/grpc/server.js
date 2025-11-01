@@ -6,7 +6,7 @@ import { fileURLToPath } from "url";
 const _filename = fileURLToPath(import.meta.url)
 const _dirname = path.dirname(_filename)
 
-const PROTO_PATH = path.join(_dirname, "../../proto/devhire.proto")
+const PROTO_PATH = path.join(_dirname, "../../../proto/devhire.proto")
 const packageDefinition = protoLoader.loadSync(PROTO_PATH,{
       keepCase: true,
   longs: String,

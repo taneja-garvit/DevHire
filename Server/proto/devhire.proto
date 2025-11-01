@@ -1,39 +1,35 @@
-syntax="proto3"
+syntax = "proto3";
 
-//-----assessmentService
+package devhire;
 
-service AssessmentService{
-    // create a new test session for a user applying to a job
-  rpc CreateTestForJob(CreateTestRequest) returns (CreateTestResponse);
-
-   // (optional) get test info by id
-  rpc GetTest(GetTestRequest) returns (GetTestResponse);
+//----- AssessmentService -----
+service AssessmentService {
+  // create a new test session for a user applying to a job
+  rpc CreateTestForJob (CreateTestRequest) returns (CreateTestResponse);
+  // get test info by id
+  rpc GetTest (GetTestRequest) returns (GetTestResponse);
   // When frontend submits answers, Assessment forwards to Evaluator via gRPC
-  rpc SubmitAnswers(SubmitRequest) returns (SubmitResponse);
+  rpc SubmitAnswers (SubmitRequest) returns (SubmitResponse);
 }
 
-
-//------- evaluate-service
-
+//----- EvaluatorService -----
 service EvaluatorService {
   // Evaluate answers and return results (and optionally forward score)
-  rpc EvaluateSubmission(EvaluateRequest) returns (EvaluateResponse);
+  rpc EvaluateSubmission (EvaluateRequest) returns (EvaluateResponse);
 }
 
-
-// -------- ScoreService (persist results) 
+//----- ScoreService -----
 service ScoreService {
   // Save score result into DB
-  rpc SaveScore(ScoreRequest) returns (ScoreResponse);
+  rpc SaveScore (ScoreRequest) returns (ScoreResponse);
 }
 
-// -------- ScoreService (persist results) 
-service ScoreService {
-  // Save score result into DB
-  rpc SaveScore(ScoreRequest) returns (ScoreResponse);
+//----- NotificationService -----
+service NotificationService {
+  rpc SendNotification (NotificationRequest) returns (NotificationResponse);
 }
 
-//-----------------Messages----------
+//----------------- Messages -----------------
 
 message CreateTestRequest {
   string jobId = 1;
@@ -121,3 +117,5 @@ message Question {
   string questionText = 2;
   repeated string options = 3;
 }
+
+
