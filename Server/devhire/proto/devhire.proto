@@ -1,0 +1,123 @@
+syntax="proto3"
+
+//-----assessmentService
+
+service AssessmentService{
+    // create a new test session for a user applying to a job
+  rpc CreateTestForJob(CreateTestRequest) returns (CreateTestResponse);
+
+   // (optional) get test info by id
+  rpc GetTest(GetTestRequest) returns (GetTestResponse);
+  // When frontend submits answers, Assessment forwards to Evaluator via gRPC
+  rpc SubmitAnswers(SubmitRequest) returns (SubmitResponse);
+}
+
+
+//------- evaluate-service
+
+service EvaluatorService {
+  // Evaluate answers and return results (and optionally forward score)
+  rpc EvaluateSubmission(EvaluateRequest) returns (EvaluateResponse);
+}
+
+
+// -------- ScoreService (persist results) 
+service ScoreService {
+  // Save score result into DB
+  rpc SaveScore(ScoreRequest) returns (ScoreResponse);
+}
+
+// -------- ScoreService (persist results) 
+service ScoreService {
+  // Save score result into DB
+  rpc SaveScore(ScoreRequest) returns (ScoreResponse);
+}
+
+//-----------------Messages----------
+
+message CreateTestRequest {
+  string jobId = 1;
+  string userId = 2;
+  repeated string skills = 3;
+}
+
+message CreateTestResponse {
+  string testId = 1;
+  repeated string questionIds = 2;
+}
+
+message GetTestRequest {
+  string testId = 1;
+}
+
+message GetTestResponse {
+  string testId = 1;
+  repeated Question questions = 2;
+}
+
+message SubmitRequest {
+  string testId = 1;
+  string userId = 2;
+  string recruiterId = 3;
+  repeated Answer answers = 4;
+}
+
+message SubmitResponse {
+  bool ok = 1;
+  string message = 2;
+  int32 score = 3;
+}
+
+message EvaluateRequest {
+  string testId = 1;
+  string userId = 2;
+  string recruiterId = 3;
+  repeated Answer answers = 4;
+}
+
+message EvaluateResponse {
+  int32 totalScore = 1;
+  int32 totalQuestions = 2;
+  repeated QuestionResult results = 3;
+}
+
+message ScoreRequest {
+  string userId = 1;
+  string recruiterId = 2;
+  string testId = 3;
+  int32 score = 4;
+  int32 total = 5;
+}
+
+message ScoreResponse {
+  string resultId = 1;
+  bool ok = 2;
+}
+
+message NotificationRequest {
+  string userId = 1;
+  string recruiterId = 2;
+  string message = 3;
+}
+
+message NotificationResponse {
+  bool ok = 1;
+  string id = 2;
+}
+
+message Answer {
+  string questionId = 1;
+  int32 selectedIndex = 2;
+}
+
+message QuestionResult {
+  string questionId = 1;
+  bool correct = 2;
+  int32 pointsReceived = 3;
+}
+
+message Question {
+  string questionId = 1;
+  string questionText = 2;
+  repeated string options = 3;
+}
