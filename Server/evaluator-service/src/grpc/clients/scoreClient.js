@@ -4,17 +4,18 @@ import protoLoader from "@grpc/proto-loader";
 import path from "path";
 import { fileURLToPath } from "url";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const _filename = fileURLToPath(import.meta.url);
+const _dirname = path.dirname(_filename);
 
-// Load the proto file
-const PROTO_PATH = path.join(__dirname, "../../../../proto/devhire.proto");
+// Load the proto file from Docker volume mount
+const PROTO_PATH = path.resolve("/proto/devhire.proto");
 const packageDef = protoLoader.loadSync(PROTO_PATH);
 const grpcObj = grpc.loadPackageDefinition(packageDef).devhire;
 
 // Create a client instance to connect to Score-Service gRPC server
+// Use Docker service name instead of localhost
 const scoreClient = new grpcObj.ScoreService(
-  "localhost:50052", // Score-Service port
+  "score-service:50052",
   grpc.credentials.createInsecure()
 );
 

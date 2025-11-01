@@ -5,11 +5,11 @@ import path from "path";
 import { fileURLToPath } from "url";
 import config from "../config/index.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const _filename = fileURLToPath(import.meta.url);
+const _dirname = path.dirname(_filename);
 
-// load proto definition (assumes root proto/devhire.proto)
-const PROTO_PATH = path.join(process.cwd(), "../proto/devhire.proto");
+// load proto definition from Docker volume mount at /proto
+const PROTO_PATH = path.resolve("/proto/devhire.proto");
 const packageDef = protoLoader.loadSync(PROTO_PATH, {
   keepCase: true,
   longs: String,

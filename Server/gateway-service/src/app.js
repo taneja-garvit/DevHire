@@ -1,18 +1,28 @@
 import express from "express";
 import cors from "cors";
-import applyRoutes from "./routes/applyRoutes.js";
-import testRoutes from "./routes/testRoutes.js";
 import { requireAuth } from "./middlewares/authMiddleware.js";
+
+import authRoutes from "./routes/authRoutes.js";
+import jobRoutes from "./routes/jobRoutes.js";
+import assessmentRoutes from "./routes/assessmentRoutes.js";
+import evaluatorRoutes from "./routes/evaluatorRoutes.js";
+import scoreRoutes from "./routes/scoreRoutes.js";
+import notificationRoutes from "./routes/notificationRoutes.js";
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// public health check
-app.get("/", (req, res) => res.send("Gateway Service up"));
+app.get("/", (req, res) => res.send("Gateway Service up ✅"));
 
-// Protected routes: requireAuth before hitting apply/test routes
-app.use("/apply", requireAuth, applyRoutes);           // POST /apply
-app.use("/tests", requireAuth, testRoutes);           // POST /tests/:id/submit
+// Public routes
+app.use("/auth", authRoutes);
+
+// Protected routes (after login)
+app.use("/jobs", requireAuth, jobRoutes);
+app.use("/assessments", requireAuth, assessmentRoutes);
+app.use("/evaluator", requireAuth, evaluatorRoutes);
+app.use("/scores", requireAuth, scoreRoutes);
+app.use("/notifications", requireAuth, notificationRoutes);
 
 export default app;

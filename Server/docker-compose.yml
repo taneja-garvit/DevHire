@@ -1,3 +1,5 @@
+# 🧩 The `version` key is now optional — Docker Compose warns if it's included.
+# You can remove it or keep it for clarity.
 version: "3.8"
 
 services:
@@ -9,7 +11,9 @@ services:
     environment:
       - PORT=5001
       - MONGO_URI=mongodb+srv://tanejaggarvit_db_user:garvit@cluster0.ytpiruw.mongodb.net/authdb?retryWrites=true&w=majority
-      - JWT_SECRET=supersecret
+      - JWT_SECRET=JWT_SECRET
+    volumes:
+      - ./proto:/proto
 
   job-service:
     build: ./job-service
@@ -19,6 +23,8 @@ services:
     environment:
       - PORT=5002
       - MONGO_URI=mongodb+srv://tanejaggarvit_db_user:garvit@cluster0.ytpiruw.mongodb.net/jobdb?retryWrites=true&w=majority
+    volumes:
+      - ./proto:/proto
 
   assessment-service:
     build: ./assessment-service
@@ -28,6 +34,8 @@ services:
     environment:
       - PORT=5003
       - MONGO_URI=mongodb+srv://tanejaggarvit_db_user:garvit@cluster0.ytpiruw.mongodb.net/assessmentdb?retryWrites=true&w=majority
+    volumes:
+      - ./proto:/proto
 
   evaluator-service:
     build: ./evaluator-service
@@ -38,6 +46,8 @@ services:
     environment:
       - PORT=5004
       - MONGO_URI=mongodb+srv://tanejaggarvit_db_user:garvit@cluster0.ytpiruw.mongodb.net/evaluatordb?retryWrites=true&w=majority
+    volumes:
+      - ./proto:/proto
 
   score-service:
     build: ./score-service
@@ -48,6 +58,8 @@ services:
     environment:
       - PORT=5005
       - MONGO_URI=mongodb+srv://tanejaggarvit_db_user:garvit@cluster0.ytpiruw.mongodb.net/scoredb?retryWrites=true&w=majority
+    volumes:
+      - ./proto:/proto
 
   notification-service:
     build: ./notification-service
@@ -58,6 +70,8 @@ services:
     environment:
       - PORT=4005
       - MONGO_URI=mongodb+srv://tanejaggarvit_db_user:garvit@cluster0.ytpiruw.mongodb.net/notificationdb?retryWrites=true&w=majority
+    volumes:
+      - ./proto:/proto
 
   gateway-service:
     build: ./gateway-service
@@ -73,7 +87,12 @@ services:
       - notification-service
     environment:
       - PORT=4000
-      - JWT_SECRET=supersecret
-      - ASSESSMENT_URL=http://assessment-service:5003
+      - JWT_SECRET=JWT_SECRET
+      - AUTH_URL=http://auth-service:5001
       - JOB_URL=http://job-service:5002
+      - ASSESSMENT_URL=http://assessment-service:5003
+      - SCORE_URL=http://score-service:5005
+      - NOTIFICATION_URL=http://notification-service:4005
       - EVALUATOR_GRPC_URL=evaluator-service:50051
+    volumes:
+      - ./proto:/proto

@@ -2,11 +2,17 @@ import grpc from "@grpc/grpc-js";
 import protoLoader from "@grpc/proto-loader";
 import path from "path";
 import { fileURLToPath } from "url";
+import Question from "../models/Question.js";
+import Result from "../models/Result.js";
+import { calculateScore } from "../utils/calculateScore.js";
+import scoreClient from "./clients/scoreClient.js";
+import notificationClient from "./clients/notificationClient.js";
 
 const _filename = fileURLToPath(import.meta.url)
 const _dirname = path.dirname(_filename)
 
-const PROTO_PATH = path.join(_dirname, "../../../proto/devhire.proto")
+// Load proto from Docker volume mount
+const PROTO_PATH = path.resolve("/proto/devhire.proto")
 const packageDefinition = protoLoader.loadSync(PROTO_PATH,{
       keepCase: true,
   longs: String,
@@ -17,28 +23,88 @@ const packageDefinition = protoLoader.loadSync(PROTO_PATH,{
 
 const protoDescriptor = grpc.loadPackageDefinition(packageDefinition).devhire;
 
-async function EvaluateSubmission(call,callback) {
+// Helper function to evaluate submission
+async function evaluateAndReturn({ testId, userId, recruiterId, answers }) {
+  const questionIds = answers.map(a => a.questionId);
+  const correctAnswers = await Question.find({ _id: { $in: questionIds } });
+
+  const score = calculateScore(answers, correctAnswers);
+
+  // Save score via gRPC to ScoreService
+  const scoreRequest = {
+    userId,
+    recruiterId,
+    testId,
+    score,
+    total: correctAnswers.length,
+  };
+
+  scoreClient.SaveScore(scoreRequest, (err, response) => {
+    if (err) console.error("❌ Error calling ScoreService:", err);
+    else console.log("✅ ScoreService Response:", response);
+  });
+
+  // Send notification via gRPC to NotificationService
+  const notificationRequest = {
+    userId,
+    recruiterId,
+    message: `Developer ${userId} completed test ${testId} with score ${score}/${correctAnswers.length}`,
+  };
+
+  notificationClient.SendNotification(notificationRequest, (err, response) => {
+    if (err) console.error("❌ Error calling NotificationService:", err);
+    else console.log("✅ NotificationService Response:", response);
+  });
+
+  // Save locally
+  await Result.create({
+    userId,
+    recruiterId,
+    testId,
+    score,
+    total: correctAnswers.length,
+  });
+
+  // Calculate detailed results
+  const results = answers.map((ans) => {
+    const question = correctAnswers.find(q => q._id.toString() === ans.questionId);
+    const correct = question && question.correctAnswerIndex === ans.selectedIndex;
+    return {
+      questionId: ans.questionId,
+      correct: correct,
+      pointsReceived: correct ? 1 : 0
+    };
+  });
+
+  return {
+    totalScore: score,
+    totalQuestions: correctAnswers.length,
+    results
+  };
+}
+
+async function EvaluateSubmission(call, callback) {
     try {
         const {testId, userId, recruiterId, answers} = call.request;
 
         const result = await evaluateAndReturn({ testId, userId, recruiterId, answers });
 
-         callback(null, {
-      totalScore: result.totalScore,
-      totalQuestions: result.totalQuestions,
-      results: result.results.map(r => ({
-        questionId: r.questionId,
-        correct: r.correct,
-        pointsReceived: r.pointsReceived
-      }))
-    });
+        callback(null, {
+          totalScore: result.totalScore,
+          totalQuestions: result.totalQuestions,
+          results: result.results.map(r => ({
+            questionId: r.questionId,
+            correct: r.correct,
+            pointsReceived: r.pointsReceived
+          }))
+        });
 
     } catch (error) {
-         console.error("gRPC EvaluateSubmission error:", err);
-    callback({
-      code: grpc.status.INTERNAL,
-      message: err.message
-    });
+        console.error("gRPC EvaluateSubmission error:", error);
+        callback({
+          code: grpc.status.INTERNAL,
+          message: error.message
+        });
     }
 }
 
