@@ -94,13 +94,13 @@ function StartTestModal({
 
       const userData = JSON.parse(user);
 
-      // Create test for the first selected skill (you can modify this logic)
+      // Send all selected skills to backend
       const response = await axios.post(
         'http://localhost:4000/assessments',
         {
           candidateId: userData._id,
           jobId,
-          skillCategory: selectedSkills[0], // Using first skill for now
+          skillCategories: selectedSkills, // Send array of all selected skills
         },
         {
           headers: { Authorization: `Bearer ${token}` },
