@@ -5,8 +5,17 @@ import TestSession from "../models/TestSession.js";
 export const createTestSession =async(req,res)=>{
     try{
         const { candidateId, jobId, skillCategory } = req.body;
+        console.log("📝 Received request body:", req.body);
+        console.log("🔍 Searching for category:", skillCategory);
+        
         const allQuestions = await Question.find({category:skillCategory})
-        if(allQuestions.length<1) return res.status(400).json({ message: "Not enough questions" });
+        console.log("📊 Found questions:", allQuestions.length);
+        console.log("📋 Questions:", allQuestions.map(q => ({ id: q._id, category: q.category, text: q.questionText.substring(0, 50) })));
+        
+        if(allQuestions.length<1) {
+            console.log("❌ Not enough questions for category:", skillCategory);
+            return res.status(400).json({ message: "Not enough questions" });
+        }
 
         const randomQuestions  = allQuestions.sort(() => 0.5 - Math.random()).slice(0, 10);
 

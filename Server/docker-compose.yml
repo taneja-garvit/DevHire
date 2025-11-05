@@ -45,7 +45,7 @@ services:
       - "50051:50051"
     environment:
       - PORT=5004
-      - MONGO_URI=mongodb+srv://tanejaggarvit_db_user:garvit@cluster0.ytpiruw.mongodb.net/evaluatordb?retryWrites=true&w=majority
+      - MONGO_URI=mongodb+srv://tanejaggarvit_db_user:garvit@cluster0.ytpiruw.mongodb.net/assessmentdb?retryWrites=true&w=majority
     volumes:
       - ./proto:/proto
 

@@ -25,8 +25,21 @@ const protoDescriptor = grpc.loadPackageDefinition(packageDefinition).devhire;
 
 // Helper function to evaluate submission
 async function evaluateAndReturn({ testId, userId, recruiterId, answers }) {
+  console.log("\n🔍 === EVALUATE AND RETURN DEBUG ===");
+  console.log("📝 Answers received:", JSON.stringify(answers, null, 2));
+  
   const questionIds = answers.map(a => a.questionId);
+  console.log("🆔 Question IDs to search:", questionIds);
+  
+  // Check total questions in DB first
+  const totalInDb = await Question.countDocuments({});
+  console.log("📊 Total questions in DB:", totalInDb);
+  
+  // Check if specific IDs exist
   const correctAnswers = await Question.find({ _id: { $in: questionIds } });
+  console.log("✅ Found correct answers:", correctAnswers.length);
+  console.log("📋 Found IDs:", correctAnswers.map(q => q._id.toString()));
+  console.log("===================================\n");
 
   const score = calculateScore(answers, correctAnswers);
 
@@ -68,7 +81,7 @@ async function evaluateAndReturn({ testId, userId, recruiterId, answers }) {
   // Calculate detailed results
   const results = answers.map((ans) => {
     const question = correctAnswers.find(q => q._id.toString() === ans.questionId);
-    const correct = question && question.correctAnswerIndex === ans.selectedIndex;
+    const correct = question && question.correctOptionIndex === ans.selectedIndex;
     return {
       questionId: ans.questionId,
       correct: correct,
