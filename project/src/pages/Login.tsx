@@ -123,7 +123,7 @@ function Login() {
                 href="#"
                 className="text-sm text-yellow-500 hover:text-yellow-600 transition-colors"
               >
-                Forgot Password?
+                
               </a>
             </div>
 
